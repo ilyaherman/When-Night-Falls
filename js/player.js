@@ -8,6 +8,7 @@ const torchArea = document.getElementById("torchArea");
 const painting = document.getElementById("painting");
 const seal = document.getElementById("seal");
 const container = document.getElementById("container");
+const moonlight = document.getElementById("moonlight");
 
 // Initial ghost position and state flags
 let posX = 370;
@@ -21,6 +22,7 @@ let isOrbTaken = false;
 let orbActivated = false;
 let isInPainting = false;
 let hasSeal = false;
+let hasmoonlight = false;
 
 // Position the ghost on screen
 ghost.style.left = posX + "px";
@@ -255,5 +257,14 @@ function updateSealVisibility() {
   }
 }
 
+function updatemoonlight() {
+  if (isNight && isTopBlockerUnlocked && !hasmoonlight) {
+    moonlight.style.display = "block";
+  } else {
+    moonlight.style.display = "none";
+  }
+}
+
 // Check seal visibility every 500ms
 setInterval(updateSealVisibility, 500);
+setInterval(updatemoonlight, 500);
