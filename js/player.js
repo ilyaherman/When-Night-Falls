@@ -9,6 +9,10 @@ const painting = document.getElementById("painting");
 const seal = document.getElementById("seal");
 const container = document.getElementById("container");
 const moonlight = document.getElementById("moonlight");
+const bookshelf = document.getElementById("bookshelf");
+const bed = document.getElementById("bed");
+const cutscene = document.getElementById("cutscene");
+
 
 // Initial ghost position and state flags
 let posX = 370;
@@ -23,13 +27,88 @@ let orbActivated = false;
 let isInPainting = false;
 let hasSeal = false;
 let hasmoonlight = false;
+let isUnderBed = false;
+let isCutscenePlaying = false;
+let hasReadNote = false;
+
+
+// Adding new variables for the notes system
+let isNoteVisible = false;
+let currentNoteText = "";
+
+// Texts of notes (you can edit)
+const noteTexts = {
+  bookshelf: `I saw myself again. That night… digging in the backyard.
+  What was I hiding? Who?
+  I don’t remember who I was — but I think I was a monster.
+  Now I’m just a shadow.`
+};
 
 // Position the ghost on screen
 ghost.style.left = posX + "px";
 ghost.style.top = posY + "px";
 
+// Функция для создания записки
+function createNoteOverlay(text) {
+  // Удаляем существующую записку если есть
+  const existingNote = document.querySelector('.note-overlay');
+  if (existingNote) {
+    existingNote.remove();
+  }
+
+  // Create a note overlay
+  const noteOverlay = document.createElement('div');
+  noteOverlay.className = 'note-overlay';
+  
+  // Create the note content
+  const noteContent = document.createElement('div');
+  noteContent.className = 'note-content';
+  
+  // Add text
+  const noteText = document.createElement('div');
+  noteText.className = 'note-text';
+  noteText.textContent = text;
+  
+  // Adding instructions
+  const closeInstruction = document.createElement('div');
+  closeInstruction.className = 'note-instruction';
+  closeInstruction.textContent = 'Press ESC to close';
+  
+  noteContent.appendChild(noteText);
+  noteContent.appendChild(closeInstruction);
+  noteOverlay.appendChild(noteContent);
+  
+  // Add in container
+  document.body.appendChild(noteOverlay);
+  
+  isNoteVisible = true;
+  hasReadNote = true;
+}
+
+// Function to close a note
+function closeNote() {
+  const noteOverlay = document.querySelector('.note-overlay');
+  if (noteOverlay) {
+    noteOverlay.remove();
+    isNoteVisible = false;
+  }
+}
+
 // Handle keyboard controls
 document.addEventListener("keydown", (e) => {
+  // ESC close note
+  if (e.key === "Escape") {
+    if (isNoteVisible) {
+      closeNote();
+      return;
+    }
+  }
+
+  // If the note is open, block other actions
+  if (isNoteVisible) {
+    return;
+  }
+
   const step = 10;
   let newPosX = posX;
   let newPosY = posY;
@@ -52,12 +131,24 @@ document.addEventListener("keydown", (e) => {
 
     if (distance <= 50) {
       if (!isNight || !orbActivated) {
-        showDialog(!isNight ? "Sun’s up — I’m weak." : "Something is still locked.");
+        showDialog(!isNight ? "Sun's up — I'm weak." : "Something is still locked.");
       } else {
         isBottomBlockerUnlocked = true;
         bottomBlocker.classList.add("unlocked");
         showDialog("Passage unlocked!");
       }
+    }
+  }
+
+  if (e.key === "h" || e.key === "H") {
+    if (!hasReadNote) {
+      showDialog("Need to find the note.");
+      return;
+    }
+  
+    if (isNight && moonlight.style.display === "block" && !isCutscenePlaying) {
+      playCutscene();
+      return;
     }
   }
 
@@ -115,6 +206,25 @@ document.addEventListener("keydown", (e) => {
       ghost.style.left = posX + "px";
       ghost.style.top = posY + "px";
       showDialog("Out of the frame.");
+    }
+      // Under the bed on 2nd floor
+    const bedRect = bed.getBoundingClientRect();
+    const bedCenterX = bedRect.left - containerRect.left + bedRect.width / 2;
+    const bedCenterY = bedRect.top - containerRect.top + bedRect.height / 2;
+    const distanceToBed = Math.hypot(ghostCenterX - bedCenterX, ghostCenterY - bedCenterY);
+
+    if (!isUnderBed && distanceToBed <= 60 && isNight) {
+      isUnderBed = true;
+      ghost.style.display = "none";
+      showDialog("Hiding under the bed.");
+    } else if (isUnderBed) {
+      isUnderBed = false;
+      ghost.style.display = "block";
+      posX = bed.offsetLeft + 20;
+      posY = bed.offsetTop + 40;
+      ghost.style.left = posX + "px";
+      ghost.style.top = posY + "px";
+      showDialog("Crawled out.");
     }
   }
 
@@ -185,6 +295,27 @@ document.addEventListener("keydown", (e) => {
     }
   }
 
+  // Read note from bookshelf
+  if (e.key === "e" || e.key === "E") {
+    const containerRect = container.getBoundingClientRect();
+    const ghostCenterX = posX + 32;
+    const ghostCenterY = posY + 32;
+    
+    // Checking the distance to the bookcase
+    const bookshelfRect = bookshelf.getBoundingClientRect();
+    const bookshelfCenterX = bookshelfRect.left - containerRect.left + bookshelfRect.width / 2;
+    const bookshelfCenterY = bookshelfRect.top - containerRect.top + bookshelfRect.height / 2;
+    const distanceToBookshelf = Math.hypot(ghostCenterX - bookshelfCenterX, ghostCenterY - bookshelfCenterY);
+    
+    if (distanceToBookshelf <= 80) {
+      if (isNight) {
+        createNoteOverlay(noteTexts.bookshelf);
+      } else {
+        showDialog("Not");
+      }
+    }
+  }
+
   // Movement boundaries for the ghost
   const ghostWidth = 64;
   const houseWallLeft = 130;
@@ -245,7 +376,7 @@ function showDialog(text) {
   dialog.style.top = `${posY - 40}px`;
   setTimeout(() => {
     if (dialog) dialog.remove();
-  }, 2000);
+  }, 3000);
 }
 
 // Show or hide the seal depending on night time and conditions
@@ -263,6 +394,18 @@ function updatemoonlight() {
   } else {
     moonlight.style.display = "none";
   }
+}
+
+function playCutscene() {
+  isCutscenePlaying = true;
+  cutscene.classList.remove("hidden");
+
+  // Lock control (for example, for 5 seconds)
+  setTimeout(() => {
+    cutscene.classList.add("hidden");
+    isCutscenePlaying = false;
+    showDialog("Was it me? What did I bury? Maybe the bookshelf has a clue.");
+  }, 5000);
 }
 
 // Check seal visibility every 500ms

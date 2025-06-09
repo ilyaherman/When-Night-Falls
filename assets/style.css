@@ -268,3 +268,148 @@ html, body {
     0%, 100% { opacity: 0.7; }
     50% { opacity: 1; }
 }
+
+.night .bookshelf {
+    position: absolute;
+    width: 100px;
+    height: 56px;
+    top: 395px;
+    left: 143px;
+    background: transparent;
+    z-index: 1;
+  }
+  
+  .note-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .note-content {
+    background: linear-gradient(145deg, #f4f1e8, #e8e0d0);
+    background-image: 
+      linear-gradient(90deg, transparent 79px, #d4c5a0 79px, #d4c5a0 81px, transparent 81px),
+      linear-gradient(#f4f1e8 0px, #f4f1e8 25px, #e0d5c0 25px, #e0d5c0 26px, transparent 26px),
+      repeating-linear-gradient(#f4f1e8, #f4f1e8 24px, #e0d5c0 25px, #e0d5c0 26px);
+    background-size: 81px 100%, 100% 26px, 100% 26px;
+    background-position: 0 0, 0 0, 0 13px;
+    border: 2px solid #d4c5a0;
+    border-radius: 8px;
+    padding: 40px 60px 40px 100px;
+    max-width: 350px;
+    max-height: 500px;
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    position: relative;
+    transform: rotate(-1deg);
+    animation: noteAppear 0.5s ease-out;
+  }
+  
+  .note-text {
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    line-height: 26px;
+    color: #2c1810;
+    white-space: pre-line;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+    margin-bottom: 30px;
+  }
+  
+  .note-instruction {
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    font-style: italic;
+    border-top: 1px solid #d4c5a0;
+    padding-top: 15px;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes noteAppear {
+    from {
+      transform: rotate(-1deg) scale(0.8);
+      opacity: 0;
+    }
+    to {
+      transform: rotate(-1deg) scale(1);
+      opacity: 1;
+    }
+  }
+  
+  .note-content::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, transparent, rgba(139, 115, 85, 0.1), transparent);
+    border-radius: 8px;
+    z-index: -1;
+  }
+  
+  .note-content::after {
+    content: '';
+    position: absolute;
+    top: 20%;
+    right: 15%;
+    width: 15px;
+    height: 15px;
+    background: radial-gradient(circle, rgba(139, 115, 85, 0.2), transparent);
+    border-radius: 50%;
+  }
+
+.night #bed {
+    position: absolute;
+    width: 200px;
+    height: 20px;
+    left: 270px;
+    top: 445px; 
+    background: transparent; 
+    -size: cover;
+    background-repeat: no-repeat;
+    z-index: 3;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cutscene {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  .cutscene img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  
+  .hidden {
+    display: none;
+  }
