@@ -9,9 +9,9 @@ G — Absorb runes or energy orbs when close enough.
 
 Q — Reveal hidden energy orb or move the big box if conditions are met.
 
-Escape — Exit the note screen.
-
 H — Activate the cutscene.
+
+Escape — Exit the note screen.
 
 ---
 
